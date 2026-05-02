@@ -1,0 +1,4 @@
+aioesphomeapi
+python-miio
+requests
+pyyaml
