@@ -26,4 +26,4 @@ Devices:
 
   wol_mac:
   wol_broadcast:
-  wol_port:
+  wol_port: 9

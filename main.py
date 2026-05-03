@@ -40,6 +40,8 @@ try:
             output = functions.hass_climate_toggle(conf("Devices", "hassid_climate"))
         elif payload == "fan":
             output = functions.hass_fan_toggle(conf("Devices", "hassid_fan"))
+        elif payload == "wol":
+            output = functions.wol(conf("Devices", "wol_mac"), conf("Devices", "wol_broadcast"), conf("Devices", "wol_port"))
         else:
             output = "You requested an invalid device."
 
