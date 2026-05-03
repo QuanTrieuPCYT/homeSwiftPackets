@@ -186,6 +186,3 @@ fabric.properties
 
 # config.yaml, we prefer config.yaml.example
 config.yaml
-
-# devices.json
-devices.json

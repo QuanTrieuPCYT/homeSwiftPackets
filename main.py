@@ -2,18 +2,32 @@ import socket
 import functions
 from functions import conf
 
-udp_ip = conf("Server", "Address")  # Assuming the Home Assistant server is on the same machine
+udp_ip = conf("Server", "Address")
 udp_port = int(conf("Server", "Port"))
+
+enable_whitelist_str = conf("Server", "EnableWhitelist")
+enable_whitelist = str(enable_whitelist_str).lower() in ['true', '1', 't', 'y', 'yes']
+
+raw_whitelist = conf("Server", "Whitelist")
+allowed_ips = [ip.strip() for ip in str(raw_whitelist).split(",")] if raw_whitelist else []
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 sock.bind((udp_ip, udp_port))
 
 print(f"----------\nListening for UDP packets on port {udp_port}...\n----------")
+if enable_whitelist: print("IP Whitelisting is enabled!")
 
 try:
     while True:
         data, addr = sock.recvfrom(1024)
+        sender_ip = addr[0]
+
+        if enable_whitelist and sender_ip not in allowed_ips:
+            print(f"Blocked unauthorized request from IP: {sender_ip}")
+            continue
+
         payload = data.decode("utf-8").strip()
+
         if payload == "rgb":
             output = functions.esphome_toggle(conf("Devices", "ip_rgb"), conf("Devices", "key_rgb"), conf("Devices", "devname_rgb"))
         elif payload == "desk":
@@ -29,7 +43,7 @@ try:
         else:
             output = "You requested an invalid device."
 
-        print(f"Received request '{payload}' from {addr[0]}")
+        print(f"Received request '{payload}' from {sender_ip}")
         print(f"Output:\n{output}\n")
 
 except KeyboardInterrupt:

@@ -1,6 +1,8 @@
 Server:
   Address:
   Port:
+  EnableWhiteList: false
+  WhiteList:
 
 HomeAssistant:
   HomeAssistantToken:
