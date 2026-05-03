@@ -16,7 +16,7 @@ def conf(bs1: str, bs2: str):
     return str(config.get(bs1, {}).get(bs2, ""))
 
 
-headers = {'Authorization': 'Bearer ' + conf("Authorization", "HomeAssistantToken")}
+headers = {'Authorization': 'Bearer ' + conf("HomeAssistant", "Token")}
 
 
 # ESPHome methods
@@ -103,32 +103,26 @@ def wol(mac_address: str, broadcast_ip: str, port: int = 9) -> str:
 
 
 # Home Assistant methods
-def hass_toggle(entity: str) -> str:
-    url = f'{conf("Authorization", "BaseURL").rstrip("/")}/api/services/homeassistant/toggle'
-    data = {
-        'entity_id': entity
-    }
+def hass_toggle(entity: str):
+    url = f'{conf("HomeAssistant", "BaseURL").rstrip("/")}/api/services/homeassistant/toggle'
+    data = {'entity_id': entity }
     requests.post(url, headers=headers, json=data)
     urlstate = f'{conf("HomeAssistant", "BaseURL").rstrip("/")}/api/states/{entity}'
     responsestate = requests.get(urlstate, headers=headers)
     return responsestate.text
 
 
-def hass_fan_toggle(entity: str) -> str:
+def hass_fan_toggle(entity: str):
     payload = json.dumps({"entity_id": f"{entity}", })
     response = requests.get(f'{conf("HomeAssistant", "BaseURL").rstrip("/")}/api/states/{entity}', headers=headers)
-    if response.json()["state"] == "on":
-        requests.post(conf("HomeAssistant", "BaseURL").rstrip("/") + "/api/services/fan/turn_off", headers=headers, data=payload)
-    else:
-        requests.post(conf("HomeAssistant", "BaseURL").rstrip("/") + "/api/services/fan/turn_on", headers=headers, data=payload)
+    if response.json()["state"] == "on": requests.post(conf("HomeAssistant", "BaseURL").rstrip("/") + "/api/services/fan/turn_off", headers=headers, data=payload)
+    else: requests.post(conf("HomeAssistant", "BaseURL").rstrip("/") + "/api/services/fan/turn_on", headers=headers, data=payload)
     return requests.get(f'{conf("HomeAssistant", "BaseURL").rstrip("/")}/api/states/{entity}', headers=headers).text
 
 
-def hass_climate_toggle(entity: str) -> str:
+def hass_climate_toggle(entity: str):
     payload = json.dumps({"entity_id": f"{entity}", })
     response = requests.get(f'{conf("HomeAssistant", "BaseURL").rstrip("/")}/api/states/{entity}', headers=headers)
-    if response.json()["state"] == "off":
-        requests.post(conf("HomeAssistant", "BaseURL").rstrip("/") + "/api/services/climate/turn_on", headers=headers, data=payload)
-    else:
-        requests.post(conf("HomeAssistant", "BaseURL").rstrip("/") + "/api/services/climate/turn_off", headers=headers, data=payload)
+    if response.json()["state"] == "off": requests.post(conf("HomeAssistant", "BaseURL").rstrip("/") + "/api/services/climate/turn_on", headers=headers, data=payload)
+    else: requests.post(conf("HomeAssistant", "BaseURL").rstrip("/") + "/api/services/climate/turn_off", headers=headers, data=payload)
     return requests.get(f'{conf("HomeAssistant", "BaseURL").rstrip("/")}/api/states/{entity}', headers=headers).text

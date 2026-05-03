@@ -5,7 +5,7 @@ Server:
   WhiteList:
 
 HomeAssistant:
-  HomeAssistantToken:
+  Token:
   BaseURL:
 
 Devices:
