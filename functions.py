@@ -88,18 +88,26 @@ def miot_toggle(ip: str, token: str) -> Exception | str:
 
 
 # Custom Wake on LAN method
-def wol(mac_address: str, broadcast_ip: str, port: int = 9) -> str:
+def wol(mac_address: str, broadcast_ip: str, port: int = 9) -> dict[str, str]:
     clean_mac = mac_address.replace(':', '').replace('-', '').replace('.', '')
+    if len(clean_mac) != 12: return {"error": f"Invalid MAC address format: {mac_address}"}
 
-    if len(clean_mac) != 12:
-        raise ValueError(f"Invalid MAC address format: {mac_address}")
-    magic_packet = bytes.fromhex('FF' * 6 + clean_mac * 16)
+    try:
+        magic_packet = bytes.fromhex('FF' * 6 + clean_mac * 16)
 
-    with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
-        sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-        sock.sendto(magic_packet, (broadcast_ip, port))
+        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
+            sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+            sock.sendto(magic_packet, (broadcast_ip, port))
 
-    return f"WoL Magic packet sent to {mac_address} via {broadcast_ip}:{port}"
+        return {
+            "action": "wol",
+            "status": "success",
+            "mac_address": mac_address,
+            "broadcast_ip": broadcast_ip,
+            "port": str(port)
+        }
+    except Exception as e:
+        return {"error": str(e)}
 
 
 # Home Assistant methods

@@ -9,7 +9,8 @@ FROM python:3.14-alpine AS minifier
 
 WORKDIR /src
 RUN pip install --no-cache-dir python-minifier
-COPY *.py ./
+COPY main.py .
+COPY functions.py .
 RUN pyminify --in-place \
              --remove-literal-statements \
              --rename-globals \
