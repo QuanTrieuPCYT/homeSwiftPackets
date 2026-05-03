@@ -10,9 +10,14 @@ FROM python:3.14-alpine AS minifier
 WORKDIR /src
 RUN pip install --no-cache-dir python-minifier
 COPY *.py ./
-RUN for file in *.py; do \
-        pyminify "$file" > "$file.tmp" && mv "$file.tmp" "$file"; \
-    done
+RUN pyminify --in-place \
+             --remove-literal-statements \
+             --rename-globals \
+             --preserve-globals conf,esphome_toggle,miot_toggle,wol,hass_toggle,hass_climate_toggle,hass_fan_toggle \
+             --remove-asserts \
+             --remove-debug \
+             --prefer-single-line \
+             .
 
 FROM python:3.14-alpine
 
