@@ -15,10 +15,11 @@ RUN for file in *.py; do \
     done
 
 FROM python:3.14-alpine
-WORKDIR /homeswiftpackets
 
+WORKDIR /homeswiftpackets
 COPY --from=deps /usr/local/lib/python3.14/site-packages /usr/local/lib/python3.14/site-packages
 COPY --from=minifier /src/*.py ./
 RUN adduser -D homeswiftpackets
 USER homeswiftpackets
+ENV PYTHONDONTWRITEBYTECODE=1
 CMD ["python3", "./main.py"]
