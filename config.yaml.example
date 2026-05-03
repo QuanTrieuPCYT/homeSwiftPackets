@@ -1,8 +1,10 @@
-Authorization:
-  HomeAssistantToken:
-  BaseURL:
+Server:
   Address:
   Port:
+
+HomeAssistant:
+  HomeAssistantToken:
+  BaseURL:
 
 Devices:
   ip_rgb:
@@ -19,3 +21,7 @@ Devices:
   hassid_lights:
   hassid_climate:
   hassid_fan:
+
+  wol_mac:
+  wol_broadcast:
+  wol_port:

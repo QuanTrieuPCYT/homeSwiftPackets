@@ -1,5 +1,7 @@
 import asyncio
 import json
+import socket
+
 import yaml
 
 import aioesphomeapi
@@ -18,7 +20,7 @@ headers = {'Authorization': 'Bearer ' + conf("Authorization", "HomeAssistantToke
 
 
 # ESPHome methods
-def esphome_toggle(ip: str, key: str, device_name: str):
+def esphome_toggle(ip: str, key: str, device_name: str) -> dict[str, str]:
     async def _toggle_task():
         client = aioesphomeapi.APIClient(
             address=ip,
@@ -78,40 +80,55 @@ def esphome_toggle(ip: str, key: str, device_name: str):
 
 
 # miot methods
-def miot_toggle(ip: str, token: str):
+def miot_toggle(ip: str, token: str) -> Exception | str:
     try:
         return Yeelight(ip, token).toggle()
     except Exception as e:
         return e
 
 
+# Custom Wake on LAN method
+def wol(mac_address: str, broadcast_ip: str, port: int = 9) -> str:
+    clean_mac = mac_address.replace(':', '').replace('-', '').replace('.', '')
+
+    if len(clean_mac) != 12:
+        raise ValueError(f"Invalid MAC address format: {mac_address}")
+    magic_packet = bytes.fromhex('FF' * 6 + clean_mac * 16)
+
+    with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
+        sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+        sock.sendto(magic_packet, (broadcast_ip, port))
+
+    return f"WoL Magic packet sent to {mac_address} via {broadcast_ip}:{port}"
+
+
 # Home Assistant methods
-def hass_toggle(entity: str):
+def hass_toggle(entity: str) -> str:
     url = f'{conf("Authorization", "BaseURL").rstrip("/")}/api/services/homeassistant/toggle'
     data = {
         'entity_id': entity
     }
     requests.post(url, headers=headers, json=data)
-    urlstate = f'{conf("Authorization", "BaseURL").rstrip("/")}/api/states/{entity}'
+    urlstate = f'{conf("HomeAssistant", "BaseURL").rstrip("/")}/api/states/{entity}'
     responsestate = requests.get(urlstate, headers=headers)
     return responsestate.text
 
 
-def hass_fan_toggle(entity: str):
+def hass_fan_toggle(entity: str) -> str:
     payload = json.dumps({"entity_id": f"{entity}", })
-    response = requests.get(f'{conf("Authorization", "BaseURL").rstrip("/")}/api/states/{entity}', headers=headers)
+    response = requests.get(f'{conf("HomeAssistant", "BaseURL").rstrip("/")}/api/states/{entity}', headers=headers)
     if response.json()["state"] == "on":
-        requests.post(conf("Authorization", "BaseURL").rstrip("/") + "/api/services/fan/turn_off", headers=headers, data=payload)
+        requests.post(conf("HomeAssistant", "BaseURL").rstrip("/") + "/api/services/fan/turn_off", headers=headers, data=payload)
     else:
-        requests.post(conf("Authorization", "BaseURL").rstrip("/") + "/api/services/fan/turn_on", headers=headers, data=payload)
-    return requests.get(f'{conf("Authorization", "BaseURL").rstrip("/")}/api/states/{entity}', headers=headers).text
+        requests.post(conf("HomeAssistant", "BaseURL").rstrip("/") + "/api/services/fan/turn_on", headers=headers, data=payload)
+    return requests.get(f'{conf("HomeAssistant", "BaseURL").rstrip("/")}/api/states/{entity}', headers=headers).text
 
 
-def hass_climate_toggle(entity: str):
+def hass_climate_toggle(entity: str) -> str:
     payload = json.dumps({"entity_id": f"{entity}", })
-    response = requests.get(f'{conf("Authorization", "BaseURL").rstrip("/")}/api/states/{entity}', headers=headers)
+    response = requests.get(f'{conf("HomeAssistant", "BaseURL").rstrip("/")}/api/states/{entity}', headers=headers)
     if response.json()["state"] == "off":
-        requests.post(conf("Authorization", "BaseURL").rstrip("/") + "/api/services/climate/turn_on", headers=headers, data=payload)
+        requests.post(conf("HomeAssistant", "BaseURL").rstrip("/") + "/api/services/climate/turn_on", headers=headers, data=payload)
     else:
-        requests.post(conf("Authorization", "BaseURL").rstrip("/") + "/api/services/climate/turn_off", headers=headers, data=payload)
-    return requests.get(f'{conf("Authorization", "BaseURL").rstrip("/")}/api/states/{entity}', headers=headers).text
+        requests.post(conf("HomeAssistant", "BaseURL").rstrip("/") + "/api/services/climate/turn_off", headers=headers, data=payload)
+    return requests.get(f'{conf("HomeAssistant", "BaseURL").rstrip("/")}/api/states/{entity}', headers=headers).text

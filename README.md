@@ -8,4 +8,5 @@ This application controls various devices in my smart home. Those include:
 - Xiaomi devices via [Miot Spec](https://home.miot-spec.com) (Desk Lamp).
 - [ESPHome](https://esphome.io) devices (Lighting).
 - Special entities exposed via [Home Assistant](https://www.home-assistant.io) (AC and Fan).
+- WoL (Wake on LAN) support (Desktop).
 - ~~Tuya devices via their Local API, usable with [tinytuya](https://github.com/jasonacox/tinytuya).~~ (I tuya-converted all of my controllable Tuya devices so this is no longer needed).

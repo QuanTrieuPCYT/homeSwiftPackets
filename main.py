@@ -2,8 +2,8 @@ import socket
 import functions
 from functions import conf
 
-udp_ip = conf("Authorization", "Address")  # Assuming the Home Assistant server is on the same machine
-udp_port = int(conf("Authorization", "Port"))
+udp_ip = conf("Server", "Address")  # Assuming the Home Assistant server is on the same machine
+udp_port = int(conf("Server", "Port"))
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 sock.bind((udp_ip, udp_port))
