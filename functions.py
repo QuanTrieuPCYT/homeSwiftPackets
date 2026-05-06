@@ -6,7 +6,6 @@ import yaml
 
 import aioesphomeapi
 import requests
-from miio import Yeelight
 
 with open('config.yaml', 'r') as file:
     config = yaml.safe_load(file)
@@ -77,14 +76,6 @@ def esphome_toggle(ip: str, key: str, device_name: str) -> dict[str, str]:
             await client.disconnect()
 
     return asyncio.run(_toggle_task())
-
-
-# miot methods
-def miot_toggle(ip: str, token: str) -> Exception | str:
-    try:
-        return Yeelight(ip, token).toggle()
-    except Exception as e:
-        return e
 
 
 # Custom Wake on LAN method

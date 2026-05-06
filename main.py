@@ -31,7 +31,7 @@ try:
         if payload == "rgb":
             output = functions.esphome_toggle(conf("Devices", "ip_rgb"), conf("Devices", "key_rgb"), conf("Devices", "devname_rgb"))
         elif payload == "desk":
-            output = functions.miot_toggle(conf("Devices", "ip_desk"), conf("Devices", "miio_token_desk"))
+            output = functions.esphome_toggle(conf("Devices", "ip_desk"), conf("Devices", "key_desk"), conf("Devices", "devname_desk"))
         elif payload == "decorate":
             output = functions.esphome_toggle(conf("Devices", "ip_decorate"), conf("Devices", "key_decorate"), conf("Devices", "devname_decorate"))
         elif payload == "alllights":

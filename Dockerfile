@@ -2,8 +2,7 @@ FROM python:3.14-alpine AS deps
 
 WORKDIR /builder
 COPY requirements.txt .
-RUN apk add --no-cache gcc musl-dev linux-headers
-RUN CFLAGS="-Wno-error=int-conversion" pip install --no-cache-dir -r ./requirements.txt
+RUN pip install --no-cache-dir -r ./requirements.txt
 
 FROM python:3.14-alpine AS minifier
 

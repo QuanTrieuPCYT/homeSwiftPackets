@@ -14,7 +14,8 @@ Devices:
   devname_rgb:
 
   ip_desk:
-  miio_token_desk:
+  key_desk:
+  devname_desk:
 
   ip_decorate:
   key_decorate:
