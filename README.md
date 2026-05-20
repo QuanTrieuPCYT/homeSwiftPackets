@@ -1,6 +1,6 @@
 # homeSwiftPackets
 Locally running UDP service that helps control various smart home accessories.\
-Designed to be paired with [ESPHome](https://github.com/ESPHome/ESPHome)'s [udp.write](https://esphome.io/components/udp/#udpwrite-action). Replaces my original [tasmota-tuya-mqtt-bridge](https://github.com/QuanTrieuPCYT/tasmota-tuya-mqtt-bridge) application.
+Designed to be paired with [ESPHome](https://github.com/ESPHome/ESPHome)'s [`udp.write`](https://esphome.io/components/udp/#udpwrite-action). Replaces my original [tasmota-tuya-mqtt-bridge](https://github.com/QuanTrieuPCYT/tasmota-tuya-mqtt-bridge) application.
 
 ## Types of devices controlled
 This application controls various devices in my smart home. Those include:

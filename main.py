@@ -28,12 +28,16 @@ try:
 
         payload = data.decode("utf-8").strip()
 
-        if payload == "rgb":
+        if payload == "led":
+            output = functions.esphome_toggle(conf("Devices", "ip_led"), conf("Devices", "key_led"), conf("Devices", "devname_led"))
+        elif payload == "rgb":
             output = functions.esphome_toggle(conf("Devices", "ip_rgb"), conf("Devices", "key_rgb"), conf("Devices", "devname_rgb"))
         elif payload == "desk":
             output = functions.esphome_toggle(conf("Devices", "ip_desk"), conf("Devices", "key_desk"), conf("Devices", "devname_desk"))
         elif payload == "decorate":
             output = functions.esphome_toggle(conf("Devices", "ip_decorate"), conf("Devices", "key_decorate"), conf("Devices", "devname_decorate"))
+        elif payload == "bulbs":
+            output = functions.hass_toggle(conf("Devices", "hassid_bulbs"))
         elif payload == "alllights":
             output = functions.hass_toggle(conf("Devices", "hassid_lights"))
         elif payload == "climate":

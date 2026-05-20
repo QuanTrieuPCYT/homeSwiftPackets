@@ -9,6 +9,10 @@ HomeAssistant:
   BaseURL:
 
 Devices:
+  ip_led:
+  key_led:
+  devname_led:
+
   ip_rgb:
   key_rgb:
   devname_rgb:
@@ -21,6 +25,7 @@ Devices:
   key_decorate:
   devname_decorate:
 
+  hassid_bulbs:
   hassid_lights:
   hassid_climate:
   hassid_fan:
