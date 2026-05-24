@@ -43,7 +43,7 @@ try:
         elif payload == "climate":
             output = functions.hass_climate_toggle(conf("Devices", "hassid_climate"))
         elif payload == "fan":
-            output = functions.hass_fan_toggle(conf("Devices", "hassid_fan"))
+            output = functions.miot_fan_toggle(conf("Devices", "ip_fan"), conf("Devices", "miot_token_fan"))
         elif payload == "wol":
             output = functions.wol(conf("Devices", "wol_mac"), conf("Devices", "wol_broadcast"), int(conf("Devices", "wol_port")) if conf("Devices", "wol_port") else None)
         else:
