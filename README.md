@@ -6,5 +6,6 @@ Designed to be paired with [ESPHome](https://github.com/ESPHome/ESPHome)'s [`udp
 This application controls various devices in my smart home. Those include:
 
 - [ESPHome](https://esphome.io) devices (Lighting).
+- MIoT-powered Xiaomi Smart Fan via [python-miio](https://github.com/rytilahti/python-miio)
 - Special entities exposed via [Home Assistant](https://www.home-assistant.io) (AC and Fan).
 - WoL (Wake on LAN) support (Desktop).

@@ -7,6 +7,8 @@ import yaml
 import aioesphomeapi
 import requests
 
+from miio import FanMiot
+
 with open('config.yaml', 'r') as file:
     config = yaml.safe_load(file)
 
@@ -78,6 +80,18 @@ def esphome_toggle(ip: str, key: str, device_name: str) -> dict[str, str]:
     return asyncio.run(_toggle_task())
 
 
+# MIoT methods
+def miot_fan_toggle(ip: str, token: str):
+    try:
+        fan = FanMiot(ip=ip, token=token, model="dmaker.fan.p9") # fallbacks to Xiaomi Smart Tower Fan is fine
+        if fan.status().is_on:
+            return fan.off()
+        else:
+            return fan.on()
+    except Exception as e:
+        return e
+
+
 # Custom Wake on LAN method
 def wol(mac_address: str, broadcast_ip: str, port: int = 9) -> dict[str, str]:
     clean_mac = mac_address.replace(':', '').replace('-', '').replace('.', '')
@@ -109,14 +123,6 @@ def hass_toggle(entity: str):
     urlstate = f'{conf("HomeAssistant", "BaseURL").rstrip("/")}/api/states/{entity}'
     responsestate = requests.get(urlstate, headers=headers)
     return responsestate.text
-
-
-def hass_fan_toggle(entity: str):
-    payload = json.dumps({"entity_id": f"{entity}", })
-    response = requests.get(f'{conf("HomeAssistant", "BaseURL").rstrip("/")}/api/states/{entity}', headers=headers)
-    if response.json()["state"] == "on": requests.post(conf("HomeAssistant", "BaseURL").rstrip("/") + "/api/services/fan/turn_off", headers=headers, data=payload)
-    else: requests.post(conf("HomeAssistant", "BaseURL").rstrip("/") + "/api/services/fan/turn_on", headers=headers, data=payload)
-    return requests.get(f'{conf("HomeAssistant", "BaseURL").rstrip("/")}/api/states/{entity}', headers=headers).text
 
 
 def hass_climate_toggle(entity: str):

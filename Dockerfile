@@ -2,7 +2,7 @@ FROM python:3.14-alpine AS deps
 
 WORKDIR /builder
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r ./requirements.txt
+RUN apk add --no-cache gcc musl-dev linux-headers && CFLAGS="-Wno-error=int-conversion" pip install --no-cache-dir -r ./requirements.txt
 
 FROM python:3.14-alpine AS minifier
 
@@ -13,7 +13,7 @@ COPY functions.py .
 RUN pyminify --in-place \
              --remove-literal-statements \
              --rename-globals \
-             --preserve-globals conf,esphome_toggle,miot_toggle,wol,hass_toggle,hass_climate_toggle,hass_fan_toggle \
+             --preserve-globals conf,esphome_toggle,miot_fan_toggle,wol,hass_toggle,hass_climate_toggle \
              --remove-asserts \
              --remove-debug \
              --prefer-single-line \

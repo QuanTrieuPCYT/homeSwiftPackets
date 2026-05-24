@@ -25,10 +25,12 @@ Devices:
   key_decorate:
   devname_decorate:
 
+  ip_fan:
+  miot_token_fan:
+
   hassid_bulbs:
   hassid_lights:
   hassid_climate:
-  hassid_fan:
 
   wol_mac:
   wol_broadcast:

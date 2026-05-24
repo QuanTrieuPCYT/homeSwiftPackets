@@ -1,3 +1,4 @@
 aioesphomeapi
 requests
+python-miio
 pyyaml
