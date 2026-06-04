@@ -1,14 +1,14 @@
 import asyncio
 import json
 import socket
-
+import time
 import yaml
 
 import aioesphomeapi
 import requests
-
 from miio import FanMiot
 
+# Load configuration
 with open('config.yaml', 'r') as file:
     config = yaml.safe_load(file)
 
@@ -17,7 +17,54 @@ def conf(bs1: str, bs2: str):
     return str(config.get(bs1, {}).get(bs2, ""))
 
 
-headers = {'Authorization': 'Bearer ' + conf("HomeAssistant", "Token")}
+class HATokenManager:
+    def __init__(self):
+        self.access_token = None
+        self.expires_at = 0
+
+    def get_headers(self):
+
+        if not self.access_token or time.time() > self.expires_at - 60:
+            self._refresh_token()
+
+        token = self.access_token if self.access_token else ""
+        return {
+            'Authorization': f'Bearer {token}',
+            'Content-Type': 'application/json'
+        }
+
+    def _refresh_token(self):
+        base_url = conf("HomeAssistant", "BaseURL").rstrip("/")
+        refresh_token = conf("HomeAssistant", "RefreshToken")
+        client_id = conf("HomeAssistant", "ClientId")
+
+        if not refresh_token or not client_id:
+            print("Error: RefreshToken or ClientId missing from config.")
+            return
+
+        url = f"{base_url}/auth/token"
+
+        payload = {
+            "grant_type": "refresh_token",
+            "client_id": client_id,
+            "refresh_token": refresh_token
+        }
+
+        try:
+            response = requests.post(url, data=payload)
+            response.raise_for_status()
+            token_data = response.json()
+
+            self.access_token = token_data.get("access_token")
+
+            expires_in = token_data.get("expires_in", 1800) 
+            self.expires_at = time.time() + expires_in
+
+            print(f"Access token successfully refreshed. Valid for {expires_in}s.")
+        except Exception as e:
+            print(f"Failed to refresh token: {e}")
+
+ha_auth = HATokenManager()
 
 
 # ESPHome methods
@@ -117,17 +164,27 @@ def wol(mac_address: str, broadcast_ip: str, port: int = 9) -> dict[str, str]:
 
 # Home Assistant methods
 def hass_toggle(entity: str):
-    url = f'{conf("HomeAssistant", "BaseURL").rstrip("/")}/api/services/homeassistant/toggle'
-    data = {'entity_id': entity }
+    headers = ha_auth.get_headers()
+    base_url = conf("HomeAssistant", "BaseURL").rstrip("/")
+
+    url = f'{base_url}/api/services/homeassistant/toggle'
+    data = {'entity_id': entity}
     requests.post(url, headers=headers, json=data)
-    urlstate = f'{conf("HomeAssistant", "BaseURL").rstrip("/")}/api/states/{entity}'
+
+    urlstate = f'{base_url}/api/states/{entity}'
     responsestate = requests.get(urlstate, headers=headers)
+
     return responsestate.text
 
 
 def hass_climate_toggle(entity: str):
-    payload = json.dumps({"entity_id": f"{entity}", })
-    response = requests.get(f'{conf("HomeAssistant", "BaseURL").rstrip("/")}/api/states/{entity}', headers=headers)
-    if response.json()["state"] == "off": requests.post(conf("HomeAssistant", "BaseURL").rstrip("/") + "/api/services/climate/turn_on", headers=headers, data=payload)
-    else: requests.post(conf("HomeAssistant", "BaseURL").rstrip("/") + "/api/services/climate/turn_off", headers=headers, data=payload)
-    return requests.get(f'{conf("HomeAssistant", "BaseURL").rstrip("/")}/api/states/{entity}', headers=headers).text
+    headers = ha_auth.get_headers()
+    base_url = conf("HomeAssistant", "BaseURL").rstrip("/")
+
+    payload = json.dumps({"entity_id": f"{entity}"})
+    response = requests.get(f'{base_url}/api/states/{entity}', headers=headers)
+
+    state_data = response.json()
+    if state_data.get("state") == "off": requests.post(f"{base_url}/api/services/climate/turn_on", headers=headers, data=payload)
+    else: requests.post(f"{base_url}/api/services/climate/turn_off", headers=headers, data=payload)
+    return requests.get(f'{base_url}/api/states/{entity}', headers=headers).text

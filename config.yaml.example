@@ -5,8 +5,9 @@ Server:
   WhiteList:
 
 HomeAssistant:
-  Token:
   BaseURL:
+  RefreshToken:
+  ClientId:
 
 Devices:
   ip_led:
